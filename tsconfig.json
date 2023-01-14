@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "lib": ["ES2019"],
+    "module": "commonjs",
+    "target": "ESNext",
+    "moduleResolution": "node",
+    "sourceMap": false,
+    "strict": true,
+    "strictNullChecks": true,
+    "skipLibCheck": true,
+    "outDir": "out",
+  },
+  "exclude": ["node_modules"]
+}
