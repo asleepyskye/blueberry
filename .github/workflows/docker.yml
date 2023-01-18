@@ -1,5 +1,7 @@
 name: Build and push Docker image
-on: [push]
+on:
+  push:
+    branches: [main]
 
 jobs:
   deploy:
@@ -21,6 +23,8 @@ jobs:
           context: .
           push: true
           tags: |
+            ghcr.io/pluralkit/blueberry:${{ env.BRANCH_NAME }}
             ghcr.io/pluralkit/blueberry:${{ github.sha }}
+            ghcr.io/pluralkit/blueberry:latest
           cache-from: type=registry,ref=ghcr.io/pluralkit/pluralkit:${{ env.BRANCH_NAME }}
           cache-to: type=inline
