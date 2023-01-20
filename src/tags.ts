@@ -13,7 +13,7 @@ export default {
 			},
 			{
 				name: "3️⃣ Emoji in member names / system tags look strange!",
-				value: "Some emojis (eg 🐈‍⬛ 🏳️‍⚧️ 🏴‍☠️ 🏳️‍🌈) are made of two emojis and a joiner character, which Discord doesn't process correctly in names.\n\nOther emojis, such as ☢️, won't display properly in names because they are made of a symbol character (in this example, ☢), plus a \"variation selector,\" a special character turns the preceding character into an emoji. Discord also doesn't process these correctly in names."
+				value: "Some emojis (eg 🐈‍⬛ 🏳️‍⚧️ 🏴‍☠️ 🏳️‍🌈) are made of two emojis and a joiner character, which Discord doesn't process correctly in names.\n\nOther emojis, such as ☢️, won't display properly in names because they are made of a symbol character (in this example, `☢`), plus a \"variation selector,\" a special character turns the preceding character into an emoji. Discord also doesn't process these correctly in names."
 			},
 		],
 	},
