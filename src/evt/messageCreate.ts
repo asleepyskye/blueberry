@@ -12,6 +12,8 @@ const isNewAccount = (createdAt: number) => {
 
 const token: string = process.env.token!;
 
+const allowChatAccess: bool = true;
+
 export default async (evt: any, ctx: Context) => {
 	if (!evt.content) return;
 	if (evt.author.bot) return;
@@ -71,6 +73,11 @@ export default async (evt: any, ctx: Context) => {
 				},
 			});
 		} else {
+			if (!allowChatAccess) {
+				await ctx.rest.createReaction(evt.channel_id, evt.id, '\u274c'); // :x:
+				return;
+			}
+
 			evt.member.roles.push(config.chat_role_id);
 			await ctx.rest.editGuildMember(evt.guild_id, evt.author.id, { roles: evt.member.roles });
 			await ctx.rest.createMessage(evt.channel_id, {
