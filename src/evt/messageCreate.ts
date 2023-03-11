@@ -12,7 +12,7 @@ const isNewAccount = (createdAt: number) => {
 
 const token: string = process.env.token!;
 
-const allowChatAccess: boolean = true;
+let allowChatAccess: boolean = true;
 
 export default async (evt: any, ctx: Context) => {
 	if (!evt.content) return;
