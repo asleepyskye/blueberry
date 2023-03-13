@@ -59,6 +59,7 @@ export default async (evt: any, ctx: Context) => {
 					messageId: evt.id,
 				},
 			});
+			return;
 		}
 
 		if (evt.member.roles.includes(config.chat_role_id)) {
@@ -74,7 +75,14 @@ export default async (evt: any, ctx: Context) => {
 			});
 		} else {
 			if (!allowChatAccess) {
-				await ctx.rest.createReaction(evt.channel_id, evt.id, '\u274c'); // :x:
+				await ctx.rest.createMessage(evt.channel_id, {
+					content: `\u274c This command is currently disabled, please try again later.`,
+					allowedMentions: { parse: [] },
+					messageReference: {
+						channelId: evt.channel_id,
+						messageId: evt.id,
+					},
+				});
 				return;
 			}
 
