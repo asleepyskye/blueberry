@@ -92,4 +92,8 @@ export default {
 	shards:
 		"PluralKit is in hundreds of thousands of servers, and that's too many servers for one single connection to Discord. So, it makes many separate connections to Discord and puts some servers in each one. Each connection to Discord is called a *shard*.\n" +
 		'It is possible that one shard is malfunctioning or "down". If this happens, PluralKit will be working in certain servers but not in others.',
+	messagereport:
+		"**Reporting proxied messges to Discord Trust and Safety**\n\n" +
+		"Use the standard Discord report form (<https://dis.gd/request> - select Trust and Safety and then the reason for the report). You should provide as much information as possible - including the Discord account ID of the author of the messages, and any message links.\n" + 
+		"You can see what Discord account sent a proxied message by using the ❓ react, or copying a message link and running `pk;msg <link>` in DMs with PluralKit.",
 } as Record<string, string | object>;
