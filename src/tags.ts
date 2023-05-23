@@ -31,19 +31,24 @@ export default {
 		"\n" +
 		"> 3️⃣  *Resize or crop the avatar*\n" +
 		"> Oftentimes, an icon will not load because it is too big. *We recommend a size of 1000x1000 or less.* Prioritize square crops close to the face/focal point.",
-  	recovery:
-		"__**Possible routes to recover a lost pk system**__\n" +
-		"\n" +
-		"- **If you have your `pk;token` saved you can dm it to alyssa or Astrid** (the Developers, at the top of the sidebar) and ask them to link it to your current account. If you use Simply Plural, it's likely this is saved in the Integrations section. \n" +
-		"- **If you have export files saved you can import them with `pk;import`**. \n" +
-		"- **If your information was public you can perform public queries on it and manually copy information.** You can do public queries with your old account id to target your old system and your old member ids to target your old members. \n" +
-		"\n" +
-		"\n" +
-		"**__For the future__**\n" +
-		"\n" +
-		"- **Make an alt account and use `pk;link` to attach your system to it.** If you need to switch to that account your system's already linked to it!\n" +
-		"- **Run `pk;token` and save what it gives you in a safe place.** Think of this as your password to get your pk system back. (Make sure to resave it if you refresh it!)\n" +
-		"- **Run frequent exports and save those files in a safe place.** Exports give you a copy of your current system that you can reimport later. Keep in mind exports do not autoupdate, so if you update your pk you should make a new one. They also do not preserve ids, creation dates, or message counts.",
+	recovery: {
+		title: "Lost access to your PluralKit system?",
+		description: "PluralKit staff can recover your system, and link it to your current Discord account, _but only if you have your system token_. The token (from the `pk;token` command) is like a \"password\" to your PluralKit system.",
+		fields: [
+			{
+				name: "I've got the token for my system, what do I do?",
+				value: "Ask in <#667795132971614229> for a staff member to recover your system - make sure to mention you have the token, but **do not send your token in the channel!** When a staff member is able to help you, they'll ask you to DM them your token.",
+			},
+			{
+				name: "I don't know if I have my token! Where might it be stored?",
+				value: "If you are logged into the _[PK Dashboard](<https://dash.pluralkit.me>)_: go to the Settings page of the Dashboard, and scroll to the bottom - there will be a **Recovery** section with a button to show you the token.\n\nIf you sync your PK system with _Simply Plural_: in the SP app, go to Settings, then Integrations - your PluralKit token should be in the PluralKit section there."
+			},
+			{
+				name: "I don't have my token at all, what can I do?",
+				value: "We can not accept any \"proof of ownership\" of a PluralKit system _other than a token_. \n\nIf you have any export files saved (from \`pk;export\`) then you can import those on your new account. This will create a new system with the data from that export.\nIf you don't have an export file either, the only thing you can do is query the public information from your old system, and manually copy it to a new system.",
+			},
+		],
+	},
   	pktotupper:
 		"***PK to Tupper Import*** [Do Note Tupper's Current 500 Member Cap for folks new to Tupperbox]\n" +
 		"> pk;export\n" +
