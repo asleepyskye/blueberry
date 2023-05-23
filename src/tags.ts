@@ -101,4 +101,6 @@ export default {
 		"**Reporting proxied messges to Discord Trust and Safety**\n\n" +
 		"Use the standard Discord report form (<https://dis.gd/request> - select Trust and Safety and then the reason for the report). You should provide as much information as possible - including the Discord account ID of the author of the messages, and any message links.\n" + 
 		"You can see what Discord account sent a proxied message by using the ❓ react, or copying a message link and running `pk;msg <link>` in DMs with PluralKit.",
+	simplyplural:
+		"All syncing between PluralKit and Simply Plural is handled within the SP app - PluralKit staff most likely can not help with any issues regarding Simply Plural. Please ask in their support server instead: https://discord.gg/k5Psmjv7hy",
 } as Record<string, string | object>;
