@@ -108,6 +108,9 @@ const messagereport =
 	"**Reporting proxied messges to Discord Trust and Safety**\n\n" +
 	"Use the standard Discord report form (<https://dis.gd/request> - select Trust and Safety and then the reason for the report). You should provide as much information as possible - including the Discord account ID of the author of the messages, and any message links.\n" +
 	"You can see what Discord account sent a proxied message by using the ❓ react, or copying a message link and running `pk;msg <link>` in DMs with PluralKit."
+const emojiedit =
+	"The `pk;edit` \"workaround\" for using emojis from servers without PluralKit relied on a bug in the emoji permissions checks on Discord's side, which has now been patched. It is **required** for a server to have PluralKit for you to be able to use emojis from that server in your proxied messages.\n\n" +
+	"**There is nothing that the PluralKit developers can do about this.** Just like when emoji permissions started to be enforced originally (resulting in this workaround becoming known), **this is entirely the result of a Discord change.**"
 
 export default {
 	emojis: emojis,
@@ -156,4 +159,7 @@ export default {
 
 	simplyplural: simplyplural,
 	sp: simplyplural,
+
+	emojiedit: emojiedit,
+	emoteedit: emojiedit,
 } as Record<string, string | object>;
