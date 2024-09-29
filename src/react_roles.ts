@@ -26,5 +26,8 @@ export default {
     },
     "992520305983627274": {
         "🔔": "992520038550614046", // beta testing announcements
+    },
+    "1289987908769415300": {
+        "📝": "1289983953771434004",
     }
 } as Record<string, Record<string, string>>
