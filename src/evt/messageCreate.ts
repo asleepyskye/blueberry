@@ -20,8 +20,6 @@ export default async (evt: any, ctx: Context) => {
 	
 	const content: string = evt.content.toLowerCase();
 
-	if (evt.author.id != "883545422860283964") return;
-
 	if (content == "?ping")
 	return await ctx.rest.createMessage(evt.channel_id, "meow!");
 	
