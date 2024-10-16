@@ -3,6 +3,7 @@ export default {
     chat_role_id: "823595534567866428",
     restrict_role_id: "895972446992228382",
     admin_role_id: "686489711719612502",
+    infra_role_id: "1291763746657669211",
     // 2 weeks
     newAccountDuration:
           60 // seconds

@@ -20,6 +20,8 @@ export default async (evt: any, ctx: Context) => {
 	
 	const content: string = evt.content.toLowerCase();
 
+	if (evt.author.id != "883545422860283964") return;
+
 	if (content == "?ping")
 	return await ctx.rest.createMessage(evt.channel_id, "meow!");
 	
@@ -115,5 +117,153 @@ export default async (evt: any, ctx: Context) => {
 		if (len > 500) res += "... (check console)";
 
 		await ctx.rest.createMessage(evt.channel_id, res);
+	}
+
+	if (content?.startsWith("+s") && evt.member.roles.includes(config.infra_role_id)) {
+		if (content == "+s h" || content == "+s help") {
+			await ctx.rest.createMessage(evt.channel_id, "server-checks chatops\n\n`+s`: list silences\n`+s +<silence>`: create silence\n`+s -<silence>`: delete silence"
+				+ "\n`+s override`: override @infra pings to your account (for testing and such)\n`+s clearoverride`: clear ping override");
+		} else if (content.length == 2) {
+			let res = await fetch(
+				`https://api.cloudflare.com/client/v4/accounts/${process.env.cf_account}/storage/kv/namespaces/4fd4893d94354dac96da55a68c5df4fc/values/silences`,
+				{ headers: { authorization: `Bearer ${process.env.cf_token}` } })
+				.then((x: any) => x.json());
+			console.log(res);
+			let silences = res.map((x: any) => `- \`${x.check ?? (x.checkPrefix+"*")}@${x.node}\``).join("\n");
+			if (silences == "") silences = "no silences set";
+			await ctx.rest.createMessage(evt.channel_id, silences);
+		} else if (content[3] == "+") {
+			// add silence
+			let newsilence: any = content.slice(4).split("@");
+			if (newsilence.length != 2) {
+				await ctx.rest.createMessage(evt.channel_id, "format: `check@host`, optionally accepting a wildcard for hostname (`somecheck@*`) and/or at end of check name (someprefix*@somehost)")
+				return
+			}
+			// parse text
+			newsilence = [newsilence].map(x => ({ check: x[0], checkPrefix: null, node: x[1] }))
+				.map(x => {
+					if (x.check.endsWith("*")) {
+						x.checkPrefix = x.check.slice(0, -1);
+						x.check = null;
+					}
+					return x;
+				})[0];
+			console.log(newsilence);
+
+			let curSilences = await fetch(
+				`https://api.cloudflare.com/client/v4/accounts/${process.env.cf_account}/storage/kv/namespaces/4fd4893d94354dac96da55a68c5df4fc/values/silences`,
+				{ headers: { authorization: `Bearer ${process.env.cf_token}` } })
+				.then((x: any) => x.json());
+
+			if (!!curSilences.find((x: any) => x.check == newsilence.check && x.checkPrefix == newsilence.checkPrefix && x.node == newsilence.node)) {
+				await ctx.rest.createMessage(evt.channel_id, "check already exists");
+				return;
+			}
+
+			curSilences.push(newsilence);
+
+			let res = await fetch(
+				`https://api.cloudflare.com/client/v4/accounts/${process.env.cf_account}/storage/kv/namespaces/4fd4893d94354dac96da55a68c5df4fc/values/silences`,
+				{
+						method: "PUT",
+						headers: { authorization: `Bearer ${process.env.cf_token}` },
+						body: JSON.stringify(curSilences),
+				})
+				.then((x: any) => x.json());
+			if (res.success) {
+				await ctx.rest.createMessage(evt.channel_id, "ok");
+			} else {
+				await ctx.rest.createMessage(evt.channel_id, `not ok: ${JSON.stringify(res)}`);
+			}
+		} else if (content[3] == "-") {
+			// remove silence
+			let newsilence: any = content.slice(4).split("@");
+			if (newsilence.length != 2) {
+				await ctx.rest.createMessage(evt.channel_id, "format: `check@host`, optionally accepting a wildcard for hostname (`somecheck@*`) and/or at end of check name (someprefix*@somehost)")
+				return
+			}
+			// parse text
+			newsilence = [newsilence].map(x => ({ check: x[0], checkPrefix: null, node: x[1] }))
+				.map(x => {
+					if (x.check.endsWith("*")) {
+						x.checkPrefix = x.check.slice(0, -1);
+						x.check = null;
+					}
+					return x;
+				})[0];
+			console.log(newsilence);
+
+			let curSilences = await fetch(
+				`https://api.cloudflare.com/client/v4/accounts/${process.env.cf_account}/storage/kv/namespaces/4fd4893d94354dac96da55a68c5df4fc/values/silences`,
+				{ headers: { authorization: `Bearer ${process.env.cf_token}` } })
+				.then((x: any) => x.json());
+			console.log("del: get", curSilences);
+
+			let idx = curSilences.find((x: any) => x.check == newsilence.check && x.checkPrefix == newsilence.checkPrefix && x.node == newsilence.node);
+
+			if (idx == null) {
+				await ctx.rest.createMessage(evt.channel_id, "check doesn't exist");
+				return;
+			}
+
+			curSilences.splice(idx, 1);
+			console.log("del: send", curSilences);
+
+			let res = await fetch(
+				`https://api.cloudflare.com/client/v4/accounts/${process.env.cf_account}/storage/kv/namespaces/4fd4893d94354dac96da55a68c5df4fc/values/silences`,
+				{
+						method: "PUT",
+						headers: { authorization: `Bearer ${process.env.cf_token}` },
+						body: JSON.stringify(curSilences),
+				})
+				.then((x: any) => x.json());
+			if (res.success) {
+				await ctx.rest.createMessage(evt.channel_id, "ok");
+			} else {
+				await ctx.rest.createMessage(evt.channel_id, `not ok: ${JSON.stringify(res)}`);
+			}
+		} else if (content == "+s clear") {
+			let res = await fetch(
+				`https://api.cloudflare.com/client/v4/accounts/${process.env.cf_account}/storage/kv/namespaces/4fd4893d94354dac96da55a68c5df4fc/values/silences`,
+				{
+						method: "PUT",
+						headers: { authorization: `Bearer ${process.env.cf_token}` },
+						body: JSON.stringify([]),
+				})
+				.then((x: any) => x.json());
+			if (res.success) {
+				await ctx.rest.createMessage(evt.channel_id, "ok");
+			} else {
+				await ctx.rest.createMessage(evt.channel_id, `not ok: ${JSON.stringify(res)}`);
+			}
+		} else if (content == "+s override") {
+			let res = await fetch(
+				`https://api.cloudflare.com/client/v4/accounts/${process.env.cf_account}/storage/kv/namespaces/4fd4893d94354dac96da55a68c5df4fc/values/notif`,
+				{
+						method: "PUT",
+						headers: { authorization: `Bearer ${process.env.cf_token}` },
+						body: `<@${evt.author.id}>`,
+				})
+				.then((x: any) => x.json());
+			if (res.success) {
+				await ctx.rest.createMessage(evt.channel_id, "ok");
+			} else {
+				await ctx.rest.createMessage(evt.channel_id, `not ok: ${JSON.stringify(res)}`);
+			}
+		} else if (content == "+s clearoverride") {
+			let res = await fetch(
+				`https://api.cloudflare.com/client/v4/accounts/${process.env.cf_account}/storage/kv/namespaces/4fd4893d94354dac96da55a68c5df4fc/values/notif`,
+				{
+						method: "PUT",
+						headers: { authorization: `Bearer ${process.env.cf_token}` },
+						body: "",
+				})
+				.then((x: any) => x.json());
+			if (res.success) {
+				await ctx.rest.createMessage(evt.channel_id, "ok");
+			} else {
+				await ctx.rest.createMessage(evt.channel_id, `not ok: ${JSON.stringify(res)}`);
+			}
+		}
 	}
 }
