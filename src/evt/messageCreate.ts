@@ -12,7 +12,28 @@ const isNewAccount = (createdAt: number) => {
 
 const token: string = process.env.token!;
 
-let allowChatAccess: boolean = true;
+const pinnedMessageText = `<#${config.update_requests_channel}>: ask for limit updates or ID re-rolls here.
+
+Please keep your requests to **one message**, feel free to edit it afterward. Staff may create a thread in case they need more information.
+
+Any other messages **will be deleted with no warning**. If you are not sure which channel to use, please read <#641807196056715294>.`;
+
+const updatePinnedMessage = async (ctx: Context) => {
+	const key = "_pinnedMessageId";
+	let currentMessageId = await ctx.db.maybeGetString(key);
+	let newMessage = await ctx.rest.createMessage(config.update_requests_channel, pinnedMessageText);
+	if (currentMessageId) ctx.rest.deleteMessage(config.update_requests_channel, currentMessageId);
+	await ctx.db.level.put(key, newMessage.id);
+}
+
+const lockUnlockChannel = async (ctx: Context, guildId: string, channelId: string, lock: boolean) => {
+	let flags = await ctx.rest.fetchChannel(channelId).then((x: any) => x.permission_overwrites.find((o: any) => o.id == guildId).deny);
+	let operator = lock ? " | " : " & ~";
+	let deny = eval(`String(BigInt(flags) ${operator}BigInt(2048))`);
+	await ctx.rest.editChannelOverwrite(channelId, guildId, { deny });
+}
+
+const offtopicLockKey = "_offtopicLock";
 
 export default async (evt: any, ctx: Context) => {
 	if (!evt.content) return;
@@ -24,6 +45,8 @@ export default async (evt: any, ctx: Context) => {
 	return await ctx.rest.createMessage(evt.channel_id, "meow!");
 	
 	if (evt.guild_id != config.guild_id) return;
+
+	if (evt.channel_id == config.update_requests_channel) await updatePinnedMessage(ctx);
 
 	if (["?tags", "?tag list", "?taglist"].includes(content))
 		return await ctx.rest.createMessage(evt.channel_id, {
@@ -76,7 +99,7 @@ export default async (evt: any, ctx: Context) => {
 				},
 			});
 		} else {
-			if (!allowChatAccess) {
+			if (await ctx.db.maybeGetString(offtopicLockKey)) {
 				await ctx.rest.createMessage(evt.channel_id, {
 					content: `\u274c This command is currently disabled, please try again later.`,
 					allowedMentions: { parse: [] },
@@ -99,6 +122,34 @@ export default async (evt: any, ctx: Context) => {
 				},
 			})
 		}
+	}
+
+	if (content == ".lockchat" && evt.member.roles.includes(config.staff_role_id)) {
+		await ctx.db.level.put(offtopicLockKey, "true");
+		await ctx.rest.createMessage(evt.channel_id, "ok");
+	}
+
+	if (content == ".unlockchat" && evt.member.roles.includes(config.staff_role_id)) {
+		await ctx.db.level.del(offtopicLockKey);
+		await ctx.rest.createMessage(evt.channel_id, "ok");
+	}
+
+	if (content == ".lockchannels" && evt.member.roles.includes(config.staff_role_id)) {
+		await ctx.rest.createReaction(evt.channel_id, evt.id, "\u23f3");
+		for (let channel of config.lockdownChannels) {
+			await lockUnlockChannel(ctx, evt.guild_id, channel, true);
+			console.log("locked", channel);
+		}
+		await ctx.rest.createMessage(evt.channel_id, "ok");
+	}
+
+	if (content == ".unlockchannels" && evt.member.roles.includes(config.staff_role_id)) {
+		await ctx.rest.createReaction(evt.channel_id, evt.id, "\u23f3");
+		for (let channel of config.lockdownChannels) {
+			await lockUnlockChannel(ctx, evt.guild_id, channel, false);
+			console.log("locked", channel);
+		}
+		await ctx.rest.createMessage(evt.channel_id, "ok");
 	}
 
 	if (content?.startsWith(".eval ") && evt.member.roles.includes(config.admin_role_id)) {

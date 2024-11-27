@@ -3,7 +3,27 @@ export default {
     chat_role_id: "823595534567866428",
     restrict_role_id: "895972446992228382",
     admin_role_id: "686489711719612502",
+    staff_role_id: "913986523500777482",
     infra_role_id: "1291763746657669211",
+    update_requests_channel: "1310730413211254905",
+
+    lockdownChannels: [
+      "471385416595931176",  // #command-spam
+      "468104786235883530",  // #tupperbox-import
+
+      "667795132971614229",  // #bot-support
+      "1310730413211254905", // #update-requests
+      "961622977458360373",  // #website
+      "468821582794588160",  // #suggestions-feedback
+
+      "912804952953479171",  // #third-party-discussion
+
+      "710861135842115931",  // #internal-stuffs
+      "635146116144431149",  // #bug-reports-and-errors
+      "557321432342855691",  // #api-support
+      "598555595808702473",  // #beta-testing
+    ],
+
     // 2 weeks
     newAccountDuration:
           60 // seconds

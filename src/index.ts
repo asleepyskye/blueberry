@@ -20,6 +20,8 @@ const level = new Level<string[]>('bot.db')
 
 const ctx = { socket, rest, db: {
     level,
+    maybeGetString: async (id: string): Promise<string | null> =>
+        await level.get(id).catch(x => {console.log(x); return null;}) as string|null,
     get: async (id: string): Promise<string[]> => {
         if (!await level.exists(id))
             await level.put(id, []);
