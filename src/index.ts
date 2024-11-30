@@ -49,5 +49,6 @@ socket.on('packet', async ({ d: data, t, op }) => {
 });
 
 socket.on('state', (state) => console.log("socket:", state))
+socket.on('close', (close) => console.log("socket close:", close))
 
 socket.connect('wss://gateway.discord.gg')
