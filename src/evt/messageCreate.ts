@@ -14,7 +14,10 @@ const token: string = process.env.token!;
 
 const pinnedMessageText = `<#${config.update_requests_channel}>: ask for limit updates or ID re-rolls here.
 
-Please keep your requests to **one message**, feel free to edit it afterward. Staff may create a thread in case they need more information.
+If you are asking for a re-roll, *please mention the type of ID it is.*
+
+Please keep your requests to **one message**, feel free to edit it afterward. (There is a slowmode of 10 minutes in the channel, to discourage in-channel replies.)
+Staff may create a thread in case they need more information.
 
 Any other messages **will be deleted with no warning**. If you are not sure which channel to use, please read <#641807196056715294>.`;
 
