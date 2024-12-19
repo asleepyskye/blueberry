@@ -12,7 +12,7 @@ const isNewAccount = (createdAt: number) => {
 
 const token: string = process.env.token!;
 
-const pinnedMessageText = `<#${config.update_requests_channel}>: ask for limit updates or ID re-rolls here.
+const pinnedMessageText = `<#${config.update_requests_channel}>: ask for limit raises or ID re-rolls here. **Please read the pinned messages**
 
 If you are asking for a re-roll, *please mention the type of ID it is.*
 
