@@ -2,7 +2,7 @@ import { Context } from '..';
 import config from '../config';
 import { inspect } from 'util';
 
-import tags from '../tags';
+import { TAGS, TAG_ALIASES } from '../tags';
 
 const isNewAccount = (createdAt: number) => {
 	const now = Math.floor((new Date() as unknown as number) / 1000);
@@ -45,20 +45,20 @@ export default async (evt: any, ctx: Context) => {
 	const content: string = evt.content.toLowerCase();
 
 	if (content == "?ping")
-	return await ctx.rest.createMessage(evt.channel_id, "meow!");
-	
-	if (evt.guild_id != config.guild_id) return;
+		return await ctx.rest.createMessage(evt.channel_id, "meow!");
 
+	if (evt.guild_id != config.guild_id) return;
 	if (evt.channel_id == config.update_requests_channel) await updatePinnedMessage(ctx);
 
 	if (["?tags", "?tag list", "?taglist"].includes(content))
 		return await ctx.rest.createMessage(evt.channel_id, {
-			content: `available tags: ${Object.keys(tags).join(', ')}`,
+			content: `available tags: ${Object.keys(TAGS).join(', ')}`,
 			allowedMentions: { parse: [] }
 		});
 
-	let tag = tags[content.substring(1) as string];
-	if (content && content[0] == "?" && tag && evt.guild_id == config.guild_id)
+	let tagname = content.substring(1) as string;
+	let tag = TAGS[TAG_ALIASES[tagname] ?? tagname];
+	if (content && content[0] == "?" && tag)
 		return await ctx.rest.createMessage(evt.channel_id, {
 				content: (typeof tag === 'string' ? tag : undefined),
 				embeds: (typeof tag === 'string' ? undefined : [ tag ]),
