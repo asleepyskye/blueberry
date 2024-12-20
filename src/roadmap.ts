@@ -10,7 +10,7 @@ Web dashboard (to view/edit system information): https://dash.pluralkit.me
 
 ### If you have questions about how to use the bot...
 
-You can ask any bot support questions, whatever they may be, in <#667795132971614229>.\nIf you're brand new to the bot, and haven't already read the [**Getting Started Guide**](<https://pluralkit.me/start/>), we recommend you check that out before asking any questions.
+You can ask any bot support questions, whatever they may be, in <#1319461648251097288>.\nIf you're brand new to the bot, and haven't already read the [**Getting Started Guide**](<https://pluralkit.me/start/>), we recommend you check that out before asking any questions.
 
 ### Have a suggestion for a bot feature?
 
@@ -22,7 +22,7 @@ You can ask any bot support questions, whatever they may be, in <#66779513297161
 
 ### Have any questions, suggestions or bug reports for the dashboard?
 
-All dashboard related questions go in ⁠<#961622977458360373>. Suggestions are also logged on the [Notion board](<https://www.notion.so/Docs-Tracker-e245f44e76d74543ada0f51585d01016>).
+All dashboard related questions go in <#961622977458360373>. Suggestions are also logged on the [Notion board](<https://www.notion.so/Docs-Tracker-e245f44e76d74543ada0f51585d01016>).
 
 ### Need help with an external **integration** to PluralKit?
 

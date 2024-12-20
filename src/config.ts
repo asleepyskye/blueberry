@@ -11,7 +11,7 @@ export default {
       "471385416595931176",  // #command-spam
       "468104786235883530",  // #tupperbox-import
 
-      "667795132971614229",  // #bot-support
+      "1319461648251097288", // #bot-support
       "1310730413211254905", // #update-requests
       "961622977458360373",  // #website
       "468821582794588160",  // #suggestions-feedback
