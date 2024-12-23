@@ -60,7 +60,7 @@ const recovery = {
 	fields: [
 		{
 			name: "I've got the token for my system, what do I do?",
-			value: "Ask in <#667795132971614229> for a staff member to recover your system - make sure to mention you have the token, but **do not send your token in the channel!** When a staff member is able to help you, they'll ask you to DM them your token.",
+			value: "Ask in <#1319461648251097288> for a staff member to recover your system - make sure to mention you have the token, but **do not send your token in the channel!** When a staff member is able to help you, they'll ask you to DM them your token.",
 		},
 		{
 			name: "I don't know if I have my token! Where might it be stored?",
@@ -93,7 +93,7 @@ const slash =
 	"\n" +
 	"A recent change by Discord has caused these members to be unusable because Discord thinks you're trying to use a slash command. The only workaround at this time is to change the proxy tags for those members in order to continue using them. There's nothing we can do about this since it's now built into Discord. Sorry!"
 const bothelp =
-	"Please ask for help with the bot in <#667795132971614229> and help with the dashboard in <#961622977458360373>"
+	"Please ask for help with the bot in <#1319461648251097288> and help with the dashboard in <#961622977458360373>"
 const bugreport =
 	"Hi! Thanks for reporting a bug in <#635146116144431149>. However, you are missing something that is required for us to identify the issue and properly resolve it. Make sure to follow the two following points so we can best help you:\n" +
 	"\n" +
