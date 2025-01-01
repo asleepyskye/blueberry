@@ -24,6 +24,12 @@ export default {
       "598555595808702473",  // #beta-testing
     ],
 
+    allowedInvites: [
+      "PczBt78", // pluralkit
+      "2tFRMBw", // plural hub
+      "k5Psmjv7hy", // simply plural
+    ],
+
     // 2 weeks
     newAccountDuration:
           60 // seconds

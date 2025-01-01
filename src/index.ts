@@ -12,7 +12,8 @@ const token: string = process.env.token!;
 
 const rest = new RestClient(token);
 const socket = new SocketClient(token, { 
-    intents: 5635,
+    // intents: 5635,
+    intents: 2102787,
 	presence: { activity: { type: 2, name: "vocaloid songs" } }
 });
 const level = new Level<string[]>('bot.db')
