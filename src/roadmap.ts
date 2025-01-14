@@ -22,7 +22,7 @@ You can ask any bot support questions, whatever they may be, in <#13194616482510
 
 ### Have any questions, suggestions or bug reports for the dashboard?
 
-All dashboard related questions go in <#961622977458360373>. Suggestions are also logged on the [Notion board](<https://www.notion.so/Docs-Tracker-e245f44e76d74543ada0f51585d01016>).
+All dashboard related questions go in <#961622977458360373>. Feedback for the beta version of the dashboard go in https://discord.com/channels/466707357099884544/1250411075397226538.
 
 ### Need help with an external **integration** to PluralKit?
 
