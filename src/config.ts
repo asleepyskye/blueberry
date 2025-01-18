@@ -19,6 +19,7 @@ export default {
       "912804952953479171",  // #third-party-discussion
 
       "710861135842115931",  // #internal-stuffs
+      "1330225538513768552", // #infrastructure
       "635146116144431149",  // #bug-reports-and-errors
       "557321432342855691",  // #api-support
       "598555595808702473",  // #beta-testing
