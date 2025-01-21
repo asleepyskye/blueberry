@@ -73,7 +73,12 @@ export default async (evt: any, ctx: Context) => {
 		if (evt.guild_id != config.guild_id)
 			return;
 
-		if (evt.member.roles.includes(config.restrict_role_id)) {
+		if (evt.member.roles.includes(config.restrict_role_id) || ![
+			"471385416595931176", // #command-spam
+			"466707357099884546", // #chat-and-off-topic-and-foxes (i guess)
+			"847022163982548992",
+			"888856810923110531",
+		].includes(evt.channel_id)) {
 			console.log(evt.author.id, evt.author.name, "lol");
 			await ctx.rest.createReaction(evt.channel_id, evt.id, "\u274c");
 			return;
