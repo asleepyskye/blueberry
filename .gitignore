@@ -1,2 +1,4 @@
 bot.db/
 node_modules/
+out/
+.env

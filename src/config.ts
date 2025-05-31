@@ -6,6 +6,8 @@ export default {
     staff_role_id: "913986523500777482",
     infra_role_id: "1291763746657669211",
     update_requests_channel: "1310730413211254905",
+    downtime_channel: "1015204661701124206",
+    downtime_role_id: "789910091599970326",
 
     lockdownChannels: [
       "471385416595931176",  // #command-spam

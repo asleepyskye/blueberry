@@ -3,12 +3,15 @@ import config from '../config';
 import { inspect } from 'util';
 
 import { TAGS, TAG_ALIASES } from '../tags';
+import { getActiveIncidents, genIncidentEmbed, genUpdateEmbed, getIncident, getUpdate, createIncident, IncidentPatch, editIncident, IncidentUpdate, createUpdate, editUpdate } from '../incidentAPI';
 
 const isNewAccount = (createdAt: number) => {
 	const now = Math.floor((new Date() as unknown as number) / 1000);
 	if (createdAt > (now - config.newAccountDuration))
 		return true;
 }
+
+const incidentIDLen = 8;
 
 const token: string = process.env.token!;
 
@@ -129,6 +132,213 @@ export default async (evt: any, ctx: Context) => {
 					messageId: evt.id,
 				},
 			})
+		}
+	}
+
+	if (content?.startsWith("?incident ")) {
+		let subcommand = content.substring(10)
+		
+		if (subcommand == "active"){
+			try {
+				const incidents = await getActiveIncidents()
+				if (incidents.size == 0) {
+					return await ctx.rest.createMessage(evt.channel_id, {
+						content: "there are currently no active incidents"
+					});
+				}
+				let embeds: Array<any> = []
+				incidents.forEach((val, key) => {
+					embeds.push(genIncidentEmbed(val))
+				})
+				return await ctx.rest.createMessage(evt.channel_id, {
+					embeds: embeds
+				});
+			} catch (error) {
+				console.error(error)
+				return await ctx.rest.createMessage(evt.channel_id, {
+					content: `An error occurred while trying to fetch incidents!`
+				});
+			}
+		}else if (subcommand.startsWith("create") && evt.member.roles.includes(config.staff_role_id)) {
+			/*
+				formatting:
+
+				?incident create
+				name: <name>
+				status: <status>
+				impact: <impact>
+				description: <description>
+			*/
+			try {
+				const regex = /\?incident create\s*\nname:\s*(?<name>.*?)\s*\nstatus:\s*(?<status>.*?)\s*\nimpact:\s*(?<impact>.*?)\s*\ndescription:\s*(?<description>[\s\S]*)/;
+				const match = evt.content.match(regex);
+				const { name, status, impact, description } = match.groups;
+				
+				let incident = {
+					name: name,
+					status: status,
+					impact: impact,
+					description: description,
+				} as IncidentPatch;
+
+				const id = await createIncident(incident)
+				await ctx.rest.createMessage(evt.channel_id, {
+					content: `Created new incident with id: \`${id}\``,
+					messageReference: {
+						channelId: evt.channel_id,
+						messageId: evt.id,
+					},
+				});
+
+				// temporary, send notif when incident is created here
+				const createdIncident = await getIncident(id)
+				return await ctx.rest.createMessage(config.downtime_channel, {
+					content: `<@&${config.downtime_role_id}>`,
+					embed: genIncidentEmbed(createdIncident),
+					allowedMentions: { roles: [config.downtime_role_id] }
+				});
+			} catch (error) {
+				console.error(error)
+				return await ctx.rest.createMessage(evt.channel_id, {
+					content: `An error occurred while trying to create the incident!`,
+					messageReference: {
+						channelId: evt.channel_id,
+						messageId: evt.id,
+					},
+				});
+			}
+		}else if (subcommand.startsWith("editupdate") && evt.member.roles.includes(config.staff_role_id)) {
+			/*
+				formatting:
+
+				?incident editupdate <id>
+				<text>
+			*/
+			try {
+				const regex = /^\?incident editupdate\s+(?<id>\S+)\s*(?<text>[\s\S]+)$/;
+				const match = evt.content.match(regex);
+				const { id, text } = match.groups;
+
+				await editUpdate(id, text);
+				return await ctx.rest.createMessage(evt.channel_id, {
+					content: `ok!`,
+					messageReference: {
+						channelId: evt.channel_id,
+						messageId: evt.id,
+					},
+				});
+
+				//TODO: edit the update message
+			} catch (error) {
+				console.error(error)
+				return await ctx.rest.createMessage(evt.channel_id, {
+					content: `An error occurred while trying to edit the update!`,
+					messageReference: {
+						channelId: evt.channel_id,
+						messageId: evt.id,
+					},
+				});
+			}
+		}else if (subcommand.startsWith("edit") && evt.member.roles.includes(config.staff_role_id)) {
+			/*
+				formatting:
+
+				?incident edit <id>
+				name: [name]
+				status: [status]
+				impact: [impact]
+				description: [description]
+			*/
+			try {
+				// if this regex breaks, i will cry ~ @asleepyskye
+				const regex = /^\?incident edit\s+(?<id>\S+)(?:\s*\n\s*name:\s*(?<name>.*?))?(?:\s*\n\s*status:\s*(?<status>.*?))?(?:\s*\n\s*impact:\s*(?<impact>.*?))?(?:\s*\n\s*description:\s*(?<description>.*?))?\s*$/;
+				const match = evt.content.match(regex);
+				const { id, name, status, impact, description } = match.groups;
+
+				let incident = {
+					name: name,
+					status: status,
+					impact: impact,
+					description: description,
+				} as IncidentPatch;
+				await editIncident(id, incident);
+				return await ctx.rest.createMessage(evt.channel_id, {
+					content: `ok!`,
+					messageReference: {
+						channelId: evt.channel_id,
+						messageId: evt.id,
+					},
+				});
+
+				//TODO: edit the incident message
+			} catch (error) {
+				console.error(error)
+				return await ctx.rest.createMessage(evt.channel_id, {
+					content: `An error occurred while trying to edit the incident!`,
+					messageReference: {
+						channelId: evt.channel_id,
+						messageId: evt.id,
+					},
+				});
+			}
+		}else if (subcommand.startsWith("addupdate") && evt.member.roles.includes(config.staff_role_id)) {
+			/*
+				formatting:
+
+				?incident addupdate <id>
+				<text>
+			*/
+			try {
+				const regex = /^\?incident addupdate\s+(?<id>\S+)\s*(?<text>[\s\S]+)$/;
+				const match = evt.content.match(regex);
+				const { id, text } = match.groups;
+
+				const updateID = await createUpdate(id, text);
+				await ctx.rest.createMessage(evt.channel_id, {
+					content: `Created new update with id: \`${updateID}\``,
+					messageReference: {
+						channelId: evt.channel_id,
+						messageId: evt.id,
+					},
+				});
+
+				// temporary, send notif when update is created here
+				const incident = await getIncident(id)
+				const update = await getUpdate(updateID)
+				return await ctx.rest.createMessage(config.downtime_channel, {
+					content: `<@&${config.downtime_role_id}>`,
+					embed: genUpdateEmbed(incident, update),
+					allowedMentions: { roles: [config.downtime_role_id] }
+				});
+			} catch (error) {
+				console.error(error)
+				return await ctx.rest.createMessage(evt.channel_id, {
+					content: `An error occurred while trying to create the update!`,
+					messageReference: {
+						channelId: evt.channel_id,
+						messageId: evt.id,
+					},
+				});
+			}
+		}else if (subcommand.length == incidentIDLen){
+			//?incident <id>
+			try {
+				const regex = /^\?incident\s+(?<id>\S+)/;
+				const match = evt.content.match(regex);
+				const incident = await getIncident(match.groups.id);
+				return await ctx.rest.createMessage(evt.channel_id, {
+					embed: genIncidentEmbed(incident)
+				});
+			} catch (error) {
+				console.error(error)
+				return await ctx.rest.createMessage(evt.channel_id, {
+					content: `An error occurred while trying to fetch the specified incident, maybe it doesn't exist?`,
+					messageReference: {
+						channelId: evt.channel_id,
+						messageId: evt.id,
+					},
+				});
+			}
 		}
 	}
 
