@@ -8,7 +8,7 @@
     "strict": true,
     "strictNullChecks": true,
     "skipLibCheck": true,
-    "outDir": "out",
+    "outDir": "out"
   },
   "exclude": ["node_modules"]
 }

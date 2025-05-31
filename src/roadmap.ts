@@ -32,5 +32,5 @@ Many websites and/or mobile apps have been created by the community. We can't he
 
 While this server is exclusively related to PluralKit, more plural-related community and resource servers can be found in Plural Hub: https://discord.gg/2tFRMBw
 
-  `
-}
+  `,
+};

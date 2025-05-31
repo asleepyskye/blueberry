@@ -23,12 +23,12 @@ This is a bot support server, first and foremost - not a space to socialize. Off
 ### 5️⃣ No advertisements
 
 This isn't the place. Don't share or request invites to Discord servers or group DMs, or discuss creating Discord servers and/or group DMs. Don't use this server to DM advertise, either.
-`
-  },
-  {
-    description: `
+`,
+    },
+    {
+      description: `
 If there is an issue that requires moderator attention, use the <@&846725339412693013> role. Pinging individual moderators is fine, but do be aware that people may be away and a different staff member might be able to help you sooner.
-`
-    }
-  ]
-}
+`,
+    },
+  ],
+};
