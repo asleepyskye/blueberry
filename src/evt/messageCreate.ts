@@ -322,14 +322,20 @@ export default async (evt: any, ctx: Context) => {
 				formatting:
 
 				?incident addupdate <id>
-				<text>
+        status: [status]
+				text: <text>
 			*/
       try {
-        const regex = /^\?incident addupdate\s+(?<id>\S+)\s*(?<text>[\s\S]+)$/;
+        const regex = /^\?incident addupdate\s+(?<id>\S+)\s*\n\s*(?:status:\s*(?<status>.*)\s*\n\s*)?text:\s*(?<text>[\s\S]+)$/;
         const match = evt.content.match(regex);
-        const { id, text } = match.groups;
+        const { id, status, text } = match.groups;
 
-        const updateID = await createUpdate(id, text);
+        let update = {
+          status: status,
+          text: text,
+        } as IncidentUpdate;
+
+        const updateID = await createUpdate(id, update);
         await ctx.rest.createMessage(evt.channel_id, {
           content: `Created new update with id: \`${updateID}\``,
           messageReference: {

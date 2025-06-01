@@ -15,6 +15,7 @@ export enum IncidentStatus {
 export interface IncidentUpdate {
   id: string;
   text: string;
+  status: string;
   timestamp: Date;
 }
 
@@ -215,19 +216,18 @@ export async function editIncident(id: string, patch: IncidentPatch) {
 /**
  * creates a new incident update
  *
- * @param incidentID - the incident id to create the update on
- * @param text - the update body text to use
+ * @param update - the update to create, in IncidentUpdate format
  * @returns the id of the newly created update
  */
 export async function createUpdate(
   incidentID: string,
-  text: string,
+  update: IncidentUpdate,
 ): Promise<string> {
   const response = await fetch(
     `${baseURL}/api/v1/admin/incidents/${incidentID}/update`,
     {
       method: "POST",
-      body: text,
+      body: JSON.stringify(update),
     },
   );
   const data = await response.text();
