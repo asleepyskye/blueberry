@@ -227,14 +227,6 @@ export default async (evt: any, ctx: Context) => {
             messageId: evt.id,
           },
         });
-
-        // temporary, send notif when incident is created here
-        const createdIncident = await getIncident(id);
-        return await ctx.rest.createMessage(config.downtime_channel, {
-          content: `<@&${config.downtime_role_id}>`,
-          embed: genIncidentEmbed(createdIncident),
-          allowedMentions: { roles: [config.downtime_role_id] },
-        });
       } catch (error) {
         console.error(error);
         return await ctx.rest.createMessage(evt.channel_id, {
@@ -268,8 +260,6 @@ export default async (evt: any, ctx: Context) => {
             messageId: evt.id,
           },
         });
-
-        //TODO: edit the update message
       } catch (error) {
         console.error(error);
         return await ctx.rest.createMessage(evt.channel_id, {
@@ -314,8 +304,6 @@ export default async (evt: any, ctx: Context) => {
             messageId: evt.id,
           },
         });
-
-        //TODO: edit the incident message
       } catch (error) {
         console.error(error);
         return await ctx.rest.createMessage(evt.channel_id, {
@@ -348,15 +336,6 @@ export default async (evt: any, ctx: Context) => {
             channelId: evt.channel_id,
             messageId: evt.id,
           },
-        });
-
-        // temporary, send notif when update is created here
-        const incident = await getIncident(id);
-        const update = await getUpdate(updateID);
-        return await ctx.rest.createMessage(config.downtime_channel, {
-          content: `<@&${config.downtime_role_id}>`,
-          embed: genUpdateEmbed(incident, update),
-          allowedMentions: { roles: [config.downtime_role_id] },
         });
       } catch (error) {
         console.error(error);
