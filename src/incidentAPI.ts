@@ -189,7 +189,7 @@ export async function createIncident(incident: IncidentPatch): Promise<string> {
   const response = await fetch(`${base_url}/api/v1/admin/incidents/create`, {
     method: "POST",
     headers: new Headers({
-      "Authorization": `Bearer ${incidents_token}`
+      Authorization: `Bearer ${incidents_token}`,
     }),
     body: JSON.stringify(incident),
   });
@@ -210,7 +210,7 @@ export async function editIncident(id: string, patch: IncidentPatch) {
   const response = await fetch(`${base_url}/api/v1/admin/incidents/${id}`, {
     method: "PATCH",
     headers: new Headers({
-      "Authorization": `Bearer ${incidents_token}`
+      Authorization: `Bearer ${incidents_token}`,
     }),
     body: JSON.stringify(patch),
   });
@@ -235,7 +235,7 @@ export async function createUpdate(
     {
       method: "POST",
       headers: new Headers({
-        "Authorization": `Bearer ${incidents_token}`
+        Authorization: `Bearer ${incidents_token}`,
       }),
       body: JSON.stringify(update),
     },
@@ -257,7 +257,7 @@ export async function editUpdate(updateID: string, text: string) {
   const response = await fetch(`${base_url}/api/v1/admin/updates/${updateID}`, {
     method: "PATCH",
     headers: new Headers({
-      "Authorization": `Bearer ${incidents_token}`
+      Authorization: `Bearer ${incidents_token}`,
     }),
     body: text,
   });

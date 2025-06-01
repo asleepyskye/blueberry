@@ -326,7 +326,8 @@ export default async (evt: any, ctx: Context) => {
 				text: <text>
 			*/
       try {
-        const regex = /^\?incident addupdate\s+(?<id>\S+)\s*\n\s*(?:status:\s*(?<status>.*)\s*\n\s*)?text:\s*(?<text>[\s\S]+)$/;
+        const regex =
+          /^\?incident addupdate\s+(?<id>\S+)\s*\n\s*(?:status:\s*(?<status>.*)\s*\n\s*)?text:\s*(?<text>[\s\S]+)$/;
         const match = evt.content.match(regex);
         const { id, status, text } = match.groups;
 
