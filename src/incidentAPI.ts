@@ -1,4 +1,5 @@
-const baseURL = "http://localhost:8080";
+const base_url: string = process.env.incidents_url!;
+const incidents_token: string = process.env.incidents_token!;
 
 export enum Impact {
   ImpactNone = "none",
@@ -107,7 +108,7 @@ export function genUpdateEmbed(incident: Incident, update: IncidentUpdate) {
  * @returns a map of active incidents
  */
 export async function getActiveIncidents() {
-  const response = await fetch(`${baseURL}/api/v1/incidents/active`);
+  const response = await fetch(`${base_url}/api/v1/incidents/active`);
   const data = (await response.json()) as IncidentList;
   const entries = Object.entries(data.incidents).map(
     ([id, incidentData]: [string, any]) => {
@@ -137,7 +138,7 @@ export async function getActiveIncidents() {
  * @returns the specified incident as an Incident
  */
 export async function getIncident(id: string): Promise<Incident> {
-  const response = await fetch(`${baseURL}/api/v1/incidents/${id}`);
+  const response = await fetch(`${base_url}/api/v1/incidents/${id}`);
   if (!response.ok) {
     const data = await response.text();
     throw new Error(`response ${response.status}: ${data}`);
@@ -166,7 +167,7 @@ export async function getIncident(id: string): Promise<Incident> {
  * @returns the specified incident update as an IncidentUpdate
  */
 export async function getUpdate(id: string): Promise<IncidentUpdate> {
-  const response = await fetch(`${baseURL}/api/v1/updates/${id}`);
+  const response = await fetch(`${base_url}/api/v1/updates/${id}`);
   if (!response.ok) {
     const data = await response.text();
     throw new Error(`response ${response.status}: ${data}`);
@@ -185,8 +186,11 @@ export async function getUpdate(id: string): Promise<IncidentUpdate> {
  * @returns the id of the newly created incident
  */
 export async function createIncident(incident: IncidentPatch): Promise<string> {
-  const response = await fetch(`${baseURL}/api/v1/admin/incidents/create`, {
+  const response = await fetch(`${base_url}/api/v1/admin/incidents/create`, {
     method: "POST",
+    headers: new Headers({
+      "Authorization": `Bearer ${incidents_token}`
+    }),
     body: JSON.stringify(incident),
   });
   const data = await response.text();
@@ -203,8 +207,11 @@ export async function createIncident(incident: IncidentPatch): Promise<string> {
  * @param patch - the information to edit/patch, in IncidentPatch format
  */
 export async function editIncident(id: string, patch: IncidentPatch) {
-  const response = await fetch(`${baseURL}/api/v1/admin/incidents/${id}`, {
+  const response = await fetch(`${base_url}/api/v1/admin/incidents/${id}`, {
     method: "PATCH",
+    headers: new Headers({
+      "Authorization": `Bearer ${incidents_token}`
+    }),
     body: JSON.stringify(patch),
   });
   const data = await response.text();
@@ -224,9 +231,12 @@ export async function createUpdate(
   update: IncidentUpdate,
 ): Promise<string> {
   const response = await fetch(
-    `${baseURL}/api/v1/admin/incidents/${incidentID}/update`,
+    `${base_url}/api/v1/admin/incidents/${incidentID}/update`,
     {
       method: "POST",
+      headers: new Headers({
+        "Authorization": `Bearer ${incidents_token}`
+      }),
       body: JSON.stringify(update),
     },
   );
@@ -244,8 +254,11 @@ export async function createUpdate(
  * @param text - the updated body text to use
  */
 export async function editUpdate(updateID: string, text: string) {
-  const response = await fetch(`${baseURL}/api/v1/admin/updates/${updateID}`, {
+  const response = await fetch(`${base_url}/api/v1/admin/updates/${updateID}`, {
     method: "PATCH",
+    headers: new Headers({
+      "Authorization": `Bearer ${incidents_token}`
+    }),
     body: text,
   });
   const data = await response.text();
