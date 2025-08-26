@@ -233,8 +233,6 @@ async function handleModalInteraction(evt: any, ctx: Context) {
 
 export default async (evt: any, ctx: Context) => {
     if (evt.guild_id != config.guild_id) return;
-
-    console.log(evt)
     if (evt.application_id != ctx.socket.userId) return;
 
     try {

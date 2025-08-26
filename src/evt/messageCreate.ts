@@ -6,6 +6,8 @@ import { TAGS, TAG_ALIASES } from '../tags';
 
 import * as incidentAPI from "../incidentAPI"
 import * as CV2 from "../cv2"
+import { MessageFlags } from 'detritus-client/lib/constants';
+const IS_COMPONENTS_V2 = (1 << 15);
 
 const incidentIDLen = 8;
 
@@ -144,8 +146,10 @@ export default async (evt: any, ctx: Context) => {
 		let subcommand = content.substring(10).trim();
 		if (subcommand == "") {
 			try {
-				let base = await incidentAPI.genIncidentsListCV2(false)
-				const resp = await ctx.rest.createMessage(evt.channel_id, { components: [base], flags: 32768 })
+				const resp = await ctx.rest.createMessage(evt.channel_id, { 
+					components: await incidentAPI.genIncidentsListCV2(false), 
+					flags: IS_COMPONENTS_V2 
+				})
 				ctx.interactions.set(resp.id, {
 					ID: resp.id,
 					initiator: evt.author.id,
@@ -164,8 +168,10 @@ export default async (evt: any, ctx: Context) => {
 			}
 		}else if (subcommand == "admin" && evt.member.roles.includes(config.staff_role_id)){
 			try {
-				let base = await incidentAPI.genIncidentsListCV2(true)
-				const resp = await ctx.rest.createMessage(evt.channel_id, { components: [base], flags: 32768 })
+				const resp = await ctx.rest.createMessage(evt.channel_id, {
+					components: await incidentAPI.genIncidentsListCV2(true), 
+					flags: IS_COMPONENTS_V2 
+				})
 				ctx.interactions.set(resp.id, {
 					ID: resp.id,
 					initiator: evt.author.id,

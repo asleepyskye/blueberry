@@ -61,16 +61,17 @@ export interface IncidentPatch {
 export async function genIncidentsListCV2(isAdmin: boolean) {
   const incidents = await getActiveIncidents();
 
-  var base = new CV2.Container([], { accent_color: 0 });
-  base.components.push(new CV2.TextDisplay("## Active Incidents:\n\n"))
-  base.components.push(new CV2.Seperator({ spacing: 2, divider: true }))
+  var base: any[] = []
+  base.push(new CV2.Container([], { accent_color: 0 }));
+  base.at(0)?.components.push(new CV2.TextDisplay("## Active Incidents:\n\n"))
+  base.at(0)?.components.push(new CV2.Seperator({ spacing: 2, divider: true }))
 
   if (incidents.size == 0) {
-    base.components.push(new CV2.TextDisplay("there are no active incidents"))
+    base.at(0)?.components.push(new CV2.TextDisplay("there are no active incidents"))
   } else {
     let i = 0
     incidents.forEach((val, key) => {
-      base.components.push(new CV2.Section([
+      base.at(0)?.components.push(new CV2.Section([
         new CV2.TextDisplay(`### ${val.name} \n-# ${timestamp(val.last_update, MarkupTimestampStyles.BOTH_SHORT)} \n\n${val.description}`)
       ], {
         accessory: new CV2.Button({
@@ -78,14 +79,13 @@ export async function genIncidentsListCV2(isAdmin: boolean) {
           label: "View",
         })
       }))
-      if (i < incidents.size - 1) base.components.push(new CV2.Seperator({ divider: false, spacing: 2 }))
+      if (i < incidents.size - 1) base.at(0)?.components.push(new CV2.Seperator({ divider: false, spacing: 2 }))
       i++
     });
   }
 
   if (isAdmin) {
-    base.components.push(new CV2.Seperator({ spacing: 2, divider: true }))
-    base.components.push(new CV2.ActionRow([
+    base.push(new CV2.ActionRow([
       new CV2.Button({
         custom_id: "new_incident",
         label: "New",

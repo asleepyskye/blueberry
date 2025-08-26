@@ -45,7 +45,7 @@ async function cleanupInteractions(): Promise<never> {
     try {
         ctx.interactions.forEach(interaction => {
             let timestamp = new Date(interaction.timestamp);
-            if(timestamp.getTime() > (new Date().getTime() + 15 * 60 * 1000))
+            if (new Date().getTime() > (timestamp.getTime() + 15 * 60 * 1000))
                 ctx.interactions.delete(interaction.ID);
         });
     } catch (error) {
