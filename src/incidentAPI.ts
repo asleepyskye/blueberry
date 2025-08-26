@@ -11,6 +11,7 @@ export enum Impact {
   ImpactMajor = "major",
 }
 export enum IncidentStatus {
+  StatusMaintenance = "maintenance",
   StatusInvestigating = "investigating",
   StatusIdentified = "identified",
   StatusMonitoring = "monitoring",
@@ -24,11 +25,17 @@ export interface IncidentUpdate {
   timestamp: Date;
 }
 
+export interface IncidentUpdatePatch {
+  text: string | undefined;
+  status: string | undefined;
+}
+
 export interface Incident {
   id: string;
   timestamp: Date;
   status: IncidentStatus;
   impact: Impact;
+  components: string;
 
   name: string;
   description: string;
@@ -61,23 +68,130 @@ export async function genIncidentsListCV2(isAdmin: boolean) {
   if (incidents.size == 0) {
     base.components.push(new CV2.TextDisplay("there are no active incidents"))
   } else {
+    let i = 0
     incidents.forEach((val, key) => {
       base.components.push(new CV2.Section([
         new CV2.TextDisplay(`### ${val.name} \n-# ${timestamp(val.last_update, MarkupTimestampStyles.BOTH_SHORT)} \n\n${val.description}`)
       ], {
-        accessory: new CV2.Button(`view_incident_${val.id}`, { label: "View" })
+        accessory: new CV2.Button({
+          custom_id: `view_incident_${val.id}`,
+          label: "View",
+        })
       }))
+      if (i < incidents.size - 1) base.components.push(new CV2.Seperator({ divider: false, spacing: 2 }))
+      i++
     });
   }
 
-  base.components.push(new CV2.Seperator({ spacing: 2, divider: true }))
   if (isAdmin) {
+    base.components.push(new CV2.Seperator({ spacing: 2, divider: true }))
     base.components.push(new CV2.ActionRow([
-      new CV2.Button("new-incident", {
-        label: "New"
+      new CV2.Button({
+        custom_id: "new_incident",
+        label: "New",
       })
     ]))
   }
+  return base
+}
+
+export async function genIncidentCV2(id: string, isAdmin: boolean) {
+  const incident = await getIncident(id);
+
+  let color = 0;
+  switch (incident.impact) {
+    case Impact.ImpactMinor:
+      color = 15907352;
+      break;
+    case Impact.ImpactMajor:
+      color = 15756672;
+      break;
+  }
+
+  var base = new CV2.Container([], { accent_color: color });
+  base.components.push(new CV2.Section([
+    new CV2.TextDisplay(`## Incident: ${incident.name}\n**Status:** *${incident.status}*\n**Impact:** *${incident.impact}*`)
+  ],
+    {
+      accessory: new CV2.Button({
+        label: "View on status page",
+        style: CV2.ButtonStyle.Link,
+        url: "https://status.pluralkit.me/",
+      })
+    }))
+  base.components.push(new CV2.Seperator({ divider: false }))
+  base.components.push(new CV2.TextDisplay(`${incident.description}`))
+  if (incident.updates.length > 0) base.components.push(new CV2.Seperator({ spacing: 2, divider: true }));
+
+  incident.updates.forEach((val, key) => {
+    var status = ""
+    if (val.status) {
+      status = val.status.charAt(0).toUpperCase() + val.status.slice(1)
+      status += " - "
+    }
+    if (isAdmin) {
+      base.components.push(new CV2.Section([
+        new CV2.TextDisplay(`### ${status}${timestamp(val.timestamp, MarkupTimestampStyles.TIME_SHORT)} \n${val.text} \n`)],
+        {
+          accessory: new CV2.Button({
+            custom_id: `edit_update_${val.id}`,
+            style: CV2.ButtonStyle.Secondary,
+            label: "Edit",
+          })
+        }))
+    } else {
+      base.components.push(new CV2.TextDisplay(`### ${status}${timestamp(val.timestamp, MarkupTimestampStyles.TIME_SHORT)} \n${val.text} \n`))
+    }
+    if (key < incident.updates.length - 1) base.components.push(new CV2.Seperator({ spacing: 2, divider: false }))
+  })
+  if (isAdmin) {
+    base.components.push(new CV2.Seperator({ spacing: 2, divider: true }))
+    base.components.push(new CV2.ActionRow([
+      new CV2.Button({
+        custom_id: `new_update_${incident.id}`,
+        label: "New Update"
+      }),
+      new CV2.Button({
+        custom_id: `edit_incident_${incident.id}`,
+        label: "Edit",
+        style: CV2.ButtonStyle.Secondary
+      })
+    ]))
+  }
+  return base
+}
+
+export async function genIncidentModalCV2(data?: {title: string, description: string, status: string, impact: string}) {
+  var base = [
+    new CV2.Label("Title", new CV2.TextInput("title", CV2.TextInputStyle.Short, {required: (!data), value: data?.title})),
+    new CV2.Label("Description", new CV2.TextInput("description", CV2.TextInputStyle.Paragraph, {required: (!data), value: data?.description})),
+    new CV2.Label("Status", new CV2.StringSelect("status_select", [
+      { label: "Maintenance", value: "maintenance", emoji: { name: "🔧" }, default: (data?.status == "maintenance")},
+      { label: "Investigating", value: "investigating", emoji: { name: "❓" }, default: (data?.status == "investigating") },
+      { label: "Identified", value: "identified", emoji: { name: "🔍" }, default: (data?.status == "identified") },
+      { label: "Monitoring", value: "monitoring", emoji: { name: "👁️" }, default: (data?.status == "monitoring") },
+      { label: "Resolved", value: "resolved", emoji: { name: "✅" }, default: (data?.status == "resolved") },
+    ], { required: (!data) })),
+    new CV2.Label("Impact", new CV2.StringSelect("impact_select", [
+      { label: "None", value: "none", emoji: { name: "✅" }, default: (data?.impact == "none") },
+      { label: "Minor", value: "minor", emoji: { name: "‼️" }, default: (data?.impact == "minor") },
+      { label: "Major", value: "major", emoji: { name: "💥" }, default: (data?.impact == "major") },
+    ], { required: (!data) }))
+  ];
+  return base
+}
+
+export async function genUpdateModalCV2(data?: {text: string, status: string}) {
+  var base = [
+    new CV2.Label("Text", new CV2.TextInput("text", CV2.TextInputStyle.Paragraph, {required: (!data), value: data?.text})),
+    new CV2.Label("Status", new CV2.StringSelect("status_select", [
+      { label: "Maintenance", value: "maintenance", emoji: { name: "🔧" }, default: (data?.status == "maintenance") },
+      { label: "Investigating", value: "investigating", emoji: { name: "❓" }, default: (data?.status == "investigating") },
+      { label: "Identified", value: "identified", emoji: { name: "🔍" }, default: (data?.status == "identified") },
+      { label: "Monitoring", value: "monitoring", emoji: { name: "👁️" }, default: (data?.status == "monitoring") },
+      { label: "Resolved", value: "resolved", emoji: { name: "✅" }, default: (data?.status == "resolved") },
+    ], { required: (!data) }))
+  ];
   return base
 }
 
@@ -132,9 +246,9 @@ export async function getIncident(id: string): Promise<Incident> {
       : null,
     updates: data.updates
       ? data.updates.map((update: any) => ({
-          ...update,
-          timestamp: new Date(update.timestamp),
-        }))
+        ...update,
+        timestamp: new Date(update.timestamp),
+      }))
       : [],
   } as Incident;
 }
@@ -207,7 +321,7 @@ export async function editIncident(id: string, patch: IncidentPatch) {
  */
 export async function createUpdate(
   incidentID: string,
-  update: IncidentUpdate,
+  update: IncidentUpdatePatch,
 ): Promise<string> {
   const response = await fetch(
     `${base_url}/api/v1/admin/incidents/${incidentID}/update`,
@@ -232,13 +346,13 @@ export async function createUpdate(
  * @param updateID - id of the incident update to edit
  * @param text - the updated body text to use
  */
-export async function editUpdate(updateID: string, text: string) {
+export async function editUpdate(updateID: string, update: IncidentUpdatePatch) {
   const response = await fetch(`${base_url}/api/v1/admin/updates/${updateID}`, {
     method: "PATCH",
     headers: new Headers({
       Authorization: `Bearer ${incidents_token}`,
     }),
-    body: text,
+    body: JSON.stringify(update),
   });
   const data = await response.text();
   if (!response.ok) {

@@ -5,9 +5,7 @@ import { inspect } from 'util';
 import { TAGS, TAG_ALIASES } from '../tags';
 
 import * as incidentAPI from "../incidentAPI"
-
 import * as CV2 from "../cv2"
-import { MarkupTimestampStyles, MessageFlags } from 'detritus-client/lib/constants';
 
 const incidentIDLen = 8;
 
@@ -148,6 +146,12 @@ export default async (evt: any, ctx: Context) => {
 			try {
 				let base = await incidentAPI.genIncidentsListCV2(false)
 				const resp = await ctx.rest.createMessage(evt.channel_id, { components: [base], flags: 32768 })
+				ctx.interactions.set(resp.id, {
+					ID: resp.id,
+					initiator: evt.author.id,
+					type: "incidents",
+					timestamp: resp.timestamp
+				})
 			} catch (error) {
 				console.error(error);
 				return await ctx.rest.createMessage(evt.channel_id, {
@@ -162,6 +166,12 @@ export default async (evt: any, ctx: Context) => {
 			try {
 				let base = await incidentAPI.genIncidentsListCV2(true)
 				const resp = await ctx.rest.createMessage(evt.channel_id, { components: [base], flags: 32768 })
+				ctx.interactions.set(resp.id, {
+					ID: resp.id,
+					initiator: evt.author.id,
+					type: "incidents_admin",
+					timestamp: resp.timestamp
+				})
 			} catch (error) {
 				console.error(error);
 				return await ctx.rest.createMessage(evt.channel_id, {
@@ -174,6 +184,7 @@ export default async (evt: any, ctx: Context) => {
 			}
 		}
 	}
+	
 	if (content == ".lockchat" && evt.member.roles.includes(config.staff_role_id)) {
 		await ctx.db.level.put(offtopicLockKey, "true");
 		await ctx.rest.createMessage(evt.channel_id, "ok");

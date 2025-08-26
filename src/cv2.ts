@@ -1,10 +1,10 @@
-interface Component {
+export interface Component {
     type: number;
     id?: number;
 }
 
-interface PartialEmoji {
-    id: BigInt;
+export interface PartialEmoji {
+    id?: BigInt;
     name: string;
 }
 
@@ -16,8 +16,10 @@ export class ActionRow implements Component {
     constructor(components: Component[], data?: {
         id?: number;
     }) {
+        if(data){
+            Object.assign(this, data);
+        }
         this.components = components;
-        Object.assign(this, data);
     }
 }
 
@@ -27,12 +29,13 @@ export class Button implements Component {
     style: ButtonStyle = ButtonStyle.Primary;
     label?: string;
     emoji?: PartialEmoji;
-    custom_id: string = "";
+    custom_id?: string;
     sku_id?: BigInt;
     url?: string;
     disabled?: boolean;
 
-    constructor(custom_id: string, data?: {
+    constructor(data?: {
+        custom_id?: string;
         style?: ButtonStyle;
         label?: string;
         emoji?: PartialEmoji;
@@ -41,12 +44,13 @@ export class Button implements Component {
         sku_id?: BigInt;
         id?: number;
     }) {
-        this.custom_id = custom_id
-        Object.assign(this, data);
+        if (data) {
+            Object.assign(this, data);
+        }
     }
 }
 
-enum ButtonStyle {
+export enum ButtonStyle {
     Primary = 1,
     Secondary = 2,
     Success = 3,
@@ -64,23 +68,25 @@ export class StringSelect implements Component {
     min_values?: number;
     max_values?: number;
     disabled?: boolean;
+    required?: boolean;
 
     constructor(custom_id: string, options: SelectOption[], data?: {
         placeholder?: string;
         min_values?: number;
         max_values?: number;
         disabled?: boolean;
+        required?: boolean;
         id?: number;
     }) {
-        this.custom_id = custom_id;
-        this.options = options;
         if (data) {
             Object.assign(this, data);
         }
+        this.custom_id = custom_id;
+        this.options = options;
     }
 }
 
-interface SelectOption {
+export interface SelectOption {
     label: string;
     value: string;
     description?: string;
@@ -100,24 +106,24 @@ export class TextInput implements Component {
     value?: string;
     placeholder?: string;
 
-    constructor(custom_id: string, style: TextInputStyle, label: string, data?: {
+    constructor(custom_id: string, style: TextInputStyle, data?: {
         min_length?: number;
         max_length?: number;
         required?: boolean;
         value?: string;
         placeholder?: string;
         id?: number;
+        label?: string;
     }) {
-        this.custom_id = custom_id;
-        this.style = style;
-        this.label = label;
         if (data) {
             Object.assign(this, data);
         }
+        this.custom_id = custom_id;
+        this.style = style;
     }
 }
 
-enum TextInputStyle {
+export enum TextInputStyle {
     Short = 1,
     Paragraph = 2,
 }
@@ -140,14 +146,14 @@ export class UserSelect implements Component {
         disabled?: boolean;
         id?: number;
     }) {
-        this.custom_id = custom_id;
         if (data) {
             Object.assign(this, data);
         }
+        this.custom_id = custom_id;
     }
 }
 
-interface SelectDefaultValue {
+export interface SelectDefaultValue {
     id: BigInt;
     type: string;
 }
@@ -170,10 +176,10 @@ export class RoleSelect implements Component {
         disabled?: boolean;
         id?: number;
     }) {
-        this.custom_id = custom_id;
         if (data) {
             Object.assign(this, data);
         }
+        this.custom_id = custom_id;
     }
 }
 
@@ -195,10 +201,10 @@ export class MentionableSelect implements Component {
         disabled?: boolean;
         id?: number;
     }) {
-        this.custom_id = custom_id;
         if (data) {
             Object.assign(this, data);
         }
+        this.custom_id = custom_id;
     }
 }
 
@@ -222,14 +228,14 @@ export class ChannelSelect implements Component {
         disabled?: boolean;
         id?: number;
     }) {
-        this.custom_id = custom_id;
         if (data) {
             Object.assign(this, data);
         }
+        this.custom_id = custom_id;
     }
 }
 
-enum ChannelType {
+export enum ChannelType {
     GUILD_TEXT = 0,
     DM = 1,
     GUILD_VOICE = 2,
@@ -255,10 +261,10 @@ export class Section implements Component {
         accessory?: Thumbnail | Button;
         id?: number;
     }) {
-        this.components = components;
         if (data) {
             Object.assign(this, data);
         }
+        this.components = components;
     }
 }
 
@@ -285,14 +291,14 @@ export class Thumbnail implements Component {
         spoiler?: boolean;
         id?: number;
     }) {
-        this.media = media;
         if (data) {
             Object.assign(this, data);
         }
+        this.media = media;
     }
 }
 
-interface UnfurledMedia {
+export interface UnfurledMedia {
     url: string;
     readonly proxy_url?: string;
     readonly height?: number;
@@ -312,7 +318,7 @@ export class MediaGallery implements Component {
     }
 }
 
-interface MediaGalleryItem {
+export interface MediaGalleryItem {
     media: UnfurledMedia;
     description?: string;
     spoiler?: boolean;
@@ -330,10 +336,10 @@ export class File implements Component {
         spoiler?: boolean;
         id?: number;
     }) {
-        this.file = file;
         if (data) {
             Object.assign(this, data);
         }
+        this.file = file;
     }
 }
 
@@ -366,9 +372,28 @@ export class Container implements Component {
         spoiler?: boolean;
         id?: number;
     }) {
-        this.components = components;
         if (data) {
             Object.assign(this, data);
         }
+        this.components = components;
+    }
+}
+
+export class Label implements Component {
+    readonly type: number = 18;
+    id?: number;
+    label: string;
+    description?: string
+    component: Component;
+
+    constructor(label: string, component: Component, data?: {
+        description?: string;
+        id?: number;
+    }) {
+        if (data) {
+            Object.assign(this, data);
+        }
+        this.label = label;
+        this.component = component;
     }
 }
