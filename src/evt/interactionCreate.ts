@@ -4,6 +4,8 @@ import config from "../config";
 import * as incidentAPI from "../incidentAPI"
 import * as CV2 from "../cv2"
 
+const IS_COMPONENTS_V2 = (1 << 15);
+
 enum InteractionType {
     PING = 1,
     APPLICATION_COMMAND = 2,
@@ -59,8 +61,10 @@ async function handleComponentInteraction(evt: any, ctx: Context) {
     const id: string = evt.data.custom_id
     const interaction = ctx.interactions.get(evt.message.id)
     if (!interaction) {
+        console.warn("interaction not registered!")
         return
     }
+    console.log(evt.data)
 
     if (id.startsWith("view_incident")) {
         try {
@@ -69,7 +73,7 @@ async function handleComponentInteraction(evt: any, ctx: Context) {
 
             let resp = await ctx.rest.executeWebhook(evt.application_id, evt.token, {
                 components: [await incidentAPI.genIncidentCV2(incidentID, (interaction.type == "incidents_admin"))],
-                flags: (1 << 15) | MessageFlags.EPHEMERAL,
+                flags: IS_COMPONENTS_V2 | MessageFlags.EPHEMERAL,
             })
 
             ctx.interactions.set(resp.id, {
@@ -79,6 +83,10 @@ async function handleComponentInteraction(evt: any, ctx: Context) {
                 timestamp: resp.timestamp
             })
         } catch (error: any) {
+            await ctx.rest.executeWebhook(evt.application_id, evt.token, {
+                content: "an error occurred!",
+                flags: MessageFlags.EPHEMERAL,
+            })
             console.error(error);
         }
     } else if (id == "new_incident") {
@@ -92,6 +100,10 @@ async function handleComponentInteraction(evt: any, ctx: Context) {
                 components: await incidentAPI.genIncidentModalCV2(),
             })
         } catch (error: any) {
+            await ctx.rest.executeWebhook(evt.application_id, evt.token, {
+                content: `an error occurred:\n\`${error.message}\``,
+                flags: MessageFlags.EPHEMERAL,
+            })
             console.error(error);
         }
     } else if (id.startsWith("new_update")) {
@@ -106,6 +118,10 @@ async function handleComponentInteraction(evt: any, ctx: Context) {
                 components: await incidentAPI.genUpdateModalCV2(),
             })
         } catch (error: any) {
+            await ctx.rest.executeWebhook(evt.application_id, evt.token, {
+                content: `an error occurred:\n\`${error.message}\``,
+                flags: MessageFlags.EPHEMERAL,
+            })
             console.error(error);
         }
     } else if (id.startsWith("edit_incident")) {
@@ -126,18 +142,24 @@ async function handleComponentInteraction(evt: any, ctx: Context) {
                 }),
             });
         }
-        catch (error) {
+        catch (error: any) {
+            await ctx.rest.executeWebhook(evt.application_id, evt.token, {
+                content: `an error occurred:\n\`${error.message}\``,
+                flags: MessageFlags.EPHEMERAL,
+            })
             console.error(error);
         }
     } else if (id.startsWith("edit_update")) {
-        const updateID = id.replace("edit_update_", "");
+        const ids = id.replace("edit_update_", "").split("-");
+        const incidentID = ids.at(0) || "";
+        const updateID = ids.at(1) || "";
         if (!evt.member.roles.includes(config.staff_role_id)) {
             return;
         }
         try {
             let update = await incidentAPI.getUpdate(updateID);
             await ctx.rest.createInteractionResponse(evt.id, evt.token, 9, {
-                custom_id: `edit_update_modal_${updateID}`,
+                custom_id: `edit_update_modal_${incidentID}-${updateID}`,
                 title: "Edit Incident",
                 components: await incidentAPI.genUpdateModalCV2({
                     text: update.text,
@@ -145,7 +167,11 @@ async function handleComponentInteraction(evt: any, ctx: Context) {
                 }),
             });
         }
-        catch (error) {
+        catch (error: any) {
+            await ctx.rest.executeWebhook(evt.application_id, evt.token, {
+                content: `an error occurred:\n\`${error.message}\``,
+                flags: MessageFlags.EPHEMERAL,
+            })
             console.error(error);
         }
     }
@@ -153,6 +179,11 @@ async function handleComponentInteraction(evt: any, ctx: Context) {
 
 async function handleModalInteraction(evt: any, ctx: Context) {
     const id: string = evt.data.custom_id
+    const interaction = ctx.interactions.get(evt.message.id)
+    if (!interaction) {
+        return
+    }
+
     if (id == "new_incident_modal") {
         try {
             let vals = getValues(evt.data.components);
@@ -166,11 +197,27 @@ async function handleModalInteraction(evt: any, ctx: Context) {
             }
             let incidentID = await incidentAPI.createIncident(incident)
 
+            const components = await incidentAPI.genIncidentCV2(incidentID, true);
+            let resp = await ctx.rest.executeWebhook(evt.application_id, evt.token, {
+                components: [components],
+                flags: IS_COMPONENTS_V2 | MessageFlags.EPHEMERAL,
+            });
+            ctx.interactions.set(resp.id, {
+                ID: resp.id,
+                initiator: evt.member.user.id,
+                type: interaction.type,
+                timestamp: resp.timestamp
+            })
+
             await ctx.rest.executeWebhook(evt.application_id, evt.token, {
                 content: "created incident!",
                 flags: MessageFlags.EPHEMERAL,
+            });
+        } catch (error: any) {
+            await ctx.rest.executeWebhook(evt.application_id, evt.token, {
+                content: `an error occurred:\n\`${error.message}\``,
+                flags: MessageFlags.EPHEMERAL,
             })
-        } catch (error) {
             console.error(error);
         }
     } else if (id.startsWith("new_update_modal")) {
@@ -185,11 +232,19 @@ async function handleModalInteraction(evt: any, ctx: Context) {
             }
             await incidentAPI.createUpdate(incidentID, update)
 
+            const updated = await incidentAPI.genIncidentCV2(incidentID, true);
+            await ctx.rest.editWebhookTokenMessage(evt.application_id, evt.token, evt.message.id, {
+                components: [updated],
+            });
             await ctx.rest.executeWebhook(evt.application_id, evt.token, {
                 content: "created update!",
                 flags: MessageFlags.EPHEMERAL,
+            });
+        } catch (error: any) {
+            await ctx.rest.executeWebhook(evt.application_id, evt.token, {
+                content: `an error occurred:\n\`${error.message}\``,
+                flags: MessageFlags.EPHEMERAL,
             })
-        } catch (error) {
             console.error(error);
         }
     } else if (id.startsWith("edit_incident_modal")) {
@@ -204,16 +259,26 @@ async function handleModalInteraction(evt: any, ctx: Context) {
                 impact: vals.get('impact_select')?.at(0) as incidentAPI.Impact,
             };
             await incidentAPI.editIncident(incidentID, incident);
+            const updated = await incidentAPI.genIncidentCV2(incidentID, true);
+            await ctx.rest.editWebhookTokenMessage(evt.application_id, evt.token, evt.message.id, {
+                components: [updated],
+            });
             await ctx.rest.executeWebhook(evt.application_id, evt.token, {
                 content: "edited incident!",
                 flags: MessageFlags.EPHEMERAL,
             });
-        } catch (error) {
+        } catch (error: any) {
+            await ctx.rest.executeWebhook(evt.application_id, evt.token, {
+                content: `an error occurred:\n\`${error.message}\``,
+                flags: MessageFlags.EPHEMERAL,
+            })
             console.error(error);
         }
     } else if (id.startsWith("edit_update_modal")) {
         try {
-            let updateID = id.replace("edit_update_modal_", "")
+            const ids = id.replace("edit_update_modal_", "").split("-");
+            const incidentID = ids.at(0) || "";
+            const updateID = ids.at(1) || "";
             let vals = getValues(evt.data.components);
             await ctx.rest.createInteractionResponse(evt.id, evt.token, 6);
             let update = {
@@ -221,11 +286,20 @@ async function handleModalInteraction(evt: any, ctx: Context) {
                 status: vals.get('status_select')?.at(0) as incidentAPI.IncidentStatus,
             };
             await incidentAPI.editUpdate(updateID, update);
+
+            const updated = await incidentAPI.genIncidentCV2(incidentID, true);
+            await ctx.rest.editWebhookTokenMessage(evt.application_id, evt.token, evt.message.id, {
+                components: [updated],
+            });
             await ctx.rest.executeWebhook(evt.application_id, evt.token, {
                 content: "edited update!",
                 flags: MessageFlags.EPHEMERAL,
             });
-        } catch (error) {
+        } catch (error: any) {
+            await ctx.rest.executeWebhook(evt.application_id, evt.token, {
+                content: `an error occurred:\n\`${error.message}\``,
+                flags: MessageFlags.EPHEMERAL,
+            })
             console.error(error);
         }
     }

@@ -134,7 +134,7 @@ export async function genIncidentCV2(id: string, isAdmin: boolean) {
         new CV2.TextDisplay(`### ${status}${timestamp(val.timestamp, MarkupTimestampStyles.TIME_SHORT)} \n${val.text} \n`)],
         {
           accessory: new CV2.Button({
-            custom_id: `edit_update_${val.id}`,
+            custom_id: `edit_update_${id}-${val.id}`,
             style: CV2.ButtonStyle.Secondary,
             label: "Edit",
           })

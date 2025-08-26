@@ -1,10 +1,10 @@
 export default {
-    guild_id: "466707357099884544",
+    guild_id: "1357433201164816534",
     chat_role_id: "823595534567866428",
     restrict_role_id: "895972446992228382",
-    admin_role_id: "686489711719612502",
-    staff_role_id: "913986523500777482",
-    infra_role_id: "1291763746657669211",
+    admin_role_id: "1367216717918634204",
+    staff_role_id: "1367216717918634204",
+    infra_role_id: "1367216717918634204",
     update_requests_channel: "1310730413211254905",
 
     lockdownChannels: [
